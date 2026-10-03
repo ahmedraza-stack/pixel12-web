@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VisionCraft AI - Image to Frontend Code</title>
+  <meta name="theme-color" content="#020617" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Top Navigation Header -->
+  <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Branding (Ahmed Credit) -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-extrabold text-white text-xl shadow-lg shadow-indigo-500/30">
+          A
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-bold text-white tracking-tight">VisionCraft AI</h1>
+            <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              by Ahmed
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">UI Image to Executable Code Generator</p>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center space-x-3">
+        <button
+          id="install-app-btn"
+          type="button"
+          class="hidden px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-400/50 items-center gap-1.5"
+        >
+          <i class="fa-solid fa-download"></i>
+          Install App
+        </button>
+        <span class="px-3 py-1 text-xs font-medium rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Engine Ready
+        </span>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Column: Controls & Upload (5 cols) -->
+    <section class="lg:col-span-5 flex flex-col space-y-6">
+      
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up text-indigo-400 text-base"></i>
+            Upload UI Design
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">
+            Select a wireframe, mock-up, or screenshot to generate code.
+          </p>
+        </div>
+
+        <form id="generate-form" class="space-y-5">
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <i class="fa-solid fa-toggle-on text-indigo-400 text-xs"></i>
+              Input Mode
+            </label>
+            <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-950 border border-slate-700">
+              <button
+                type="button"
+                data-mode="photo"
+                class="mode-btn px-3 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white border border-indigo-500"
+              >
+                Photo to Output
+              </button>
+              <button
+                type="button"
+                data-mode="text"
+                class="mode-btn px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white border border-slate-700"
+              >
+                Write to Output
+              </button>
+            </div>
+            <input type="hidden" id="mode" name="mode" value="photo" />
+          </div>
+
+          <!-- Photo Upload -->
+          <div id="photo-mode-section" class="space-y-4">
+            <div class="relative group">
+              <input 
+                type="file" 
+                id="image-input" 
+                name="image" 
+                accept=".png, .jpg, .jpeg, .webp" 
+                multiple
+                class="hidden" 
+              />
+              <label 
+                for="image-input" 
+                id="drop-area"
+                class="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 hover:border-indigo-500/80 bg-slate-950/50 hover:bg-slate-900/50 rounded-xl p-8 cursor-pointer transition-all duration-200 text-center"
+              >
+                <div id="upload-icon-container" class="w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-image text-xl"></i>
+                </div>
+                <p id="upload-label" class="text-sm font-medium text-slate-200">
+                   Click or drag & drop images here
+                </p>
+                <p class="text-xs text-slate-500 mt-1">PNG, JPG, JPEG, or WEBP</p>
+              </label>
+            </div>
+
+            <!-- Image Preview Thumbnail -->
+            <div id="preview-box" class="hidden relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950">
+              <img id="image-preview" src="#" alt="Preview" class="max-h-56 w-full object-contain p-2" />
+              <button 
+                type="button" 
+                id="remove-image" 
+                class="absolute top-2 right-2 bg-slate-900/80 text-slate-400 hover:text-white p-1.5 rounded-lg border border-slate-700 transition-colors"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+              <button 
+                type="button" 
+                id="download-image" 
+                class="absolute bottom-2 right-2 bg-indigo-600/90 text-white hover:bg-indigo-500 px-3 py-1.5 rounded-lg border border-indigo-400/50 transition-colors text-xs font-medium flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-download"></i>
+                Download Image
+              </button>
+              <button
+                type="button"
+                id="add-more-images"
+                class="absolute bottom-2 left-2 bg-slate-800/90 text-slate-200 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-600 transition-colors text-xs font-medium flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-plus"></i>
+                Add more photos
+              </button>
+              <p id="image-count" class="absolute top-2 left-2 hidden bg-slate-900/80 text-slate-300 px-2 py-1 rounded-lg text-xs border border-slate-700"></p>
+            </div>
+          </div>
+
+          <div id="text-mode-section" class="hidden">
+            <label for="prompt" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <i class="fa-solid fa-pen-fancy text-indigo-400 text-xs"></i>
+              Describe the design
+            </label>
+            <textarea
+              id="prompt"
+              name="prompt"
+              rows="6"
+              placeholder="Create a modern sales landing page with a dark header, CTA buttons, pricing cards, and a mobile-friendly layout"
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Target Language Selection -->
+          <div class="space-y-2">
+            <label for="language" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <i class="fa-solid fa-code text-indigo-400 text-xs"></i>
+              Target Output Format
+            </label>
+            <select 
+              id="language" 
+              name="language" 
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+            >
+              <option value="HTML + Tailwind CSS" selected>HTML + Tailwind CSS</option>
+            </select>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            id="submit-btn" 
+            class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Generate Frontend Code</span>
+          </button>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- Right Column: Code & Live Preview Output (7 cols) -->
+    <section class="lg:col-span-7 flex flex-col space-y-4">
+      
+      <!-- Output Tabs Header -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2 flex items-center justify-between shadow-xl">
+        <div class="flex items-center space-x-1">
+          <button 
+            id="tab-preview-btn" 
+            class="px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-white border border-slate-700 transition-all flex items-center gap-2"
+          >
+            <i class="fa-solid fa-eye text-indigo-400"></i>
+            Live Preview
+          </button>
+          <button 
+            id="tab-code-btn" 
+            class="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2"
+          >
+            <i class="fa-solid fa-code text-slate-500"></i>
+            Generated Code
+          </button>
+        </div>
+
+        <button 
+          id="copy-btn" 
+          class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors flex items-center gap-1.5"
+        >
+          <i class="fa-regular fa-copy"></i>
+          <span>Copy Code</span>
+        </button>
+      </div>
+
+      <!-- Display Container -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl flex-1 min-h-[500px] flex flex-col relative overflow-hidden">
+        
+        <!-- Loading Spinner overlay -->
+        <div id="loading-spinner" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center gap-4">
+          <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-sm font-medium text-indigo-300 animate-pulse">Analyzing design & generating code...</p>
+        </div>
+
+        <!-- Live Preview Tab Content -->
+        <div id="tab-preview" class="w-full h-full flex-1 rounded-xl bg-slate-950 overflow-hidden border border-slate-800">
+          <iframe id="preview-iframe" class="w-full h-full min-h-[460px] border-none bg-white"></iframe>
+        </div>
+
+        <!-- Raw Code Tab Content -->
+        <div id="tab-code" class="hidden w-full h-full flex-1 rounded-xl bg-slate-950 overflow-hidden border border-slate-800 p-4">
+          <textarea 
+            id="code-output" 
+            readonly 
+            class="w-full h-full min-h-[440px] bg-transparent text-emerald-400 font-mono text-xs focus:outline-none resize-none"
+            placeholder="Generated output will appear here..."
+          ></textarea>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer with Ahmed Signature -->
+  <footer class="border-t border-slate-900 bg-slate-950 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+      <p>
+        VisionCraft AI &bull; Designed & Developed by 
+        <span class="text-indigo-400 font-semibold">Ahmed</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Frontend Interactions JavaScript -->
+  <script>
+    const imageInput = document.getElementById('image-input');
+    const dropArea = document.getElementById('drop-area');
+    const previewBox = document.getElementById('preview-box');
+    const imagePreview = document.getElementById('image-preview');
+    const removeImageBtn = document.getElementById('remove-image');
+    const downloadImageBtn = document.getElementById('download-image');
+    const addMoreImagesBtn = document.getElementById('add-more-images');
+    const imageCount = document.getElementById('image-count');
+    const modeInput = document.getElementById('mode');
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    const photoModeSection = document.getElementById('photo-mode-section');
+    const textModeSection = document.getElementById('text-mode-section');
+    let selectedFiles = [];
+    const form = document.getElementById('generate-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const loadingSpinner = document.getElementById('loading-spinner');
+
+    function setMode(mode) {
+      modeInput.value = mode;
+      const isPhoto = mode === 'photo';
+      photoModeSection.classList.toggle('hidden', !isPhoto);
+      textModeSection.classList.toggle('hidden', isPhoto);
+
+      modeButtons.forEach((button) => {
+        const active = button.dataset.mode === mode;
+        button.classList.toggle('bg-indigo-600', active);
+        button.classList.toggle('text-white', active);
+        button.classList.toggle('border-indigo-500', active);
+        button.classList.toggle('text-slate-300', !active);
+        button.classList.toggle('border-slate-700', !active);
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener('click', () => setMode(button.dataset.mode));
+    });
+
+    // Handle Image Selection & Preview
+    imageInput.addEventListener('change', function(e) {
+      selectedFiles = [...selectedFiles, ...Array.from(e.target.files)];
+      const dataTransfer = new DataTransfer();
+
+      selectedFiles.forEach(function(file) {
+        if (!Array.from(dataTransfer.files).some(existingFile =>
+          existingFile.name === file.name && existingFile.size === file.size
+        )) {
+          dataTransfer.items.add(file);
+        }
+      });
+
+      imageInput.files = dataTransfer.files;
+      const files = imageInput.files;
+      const file = files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreview.src = e.target.result;
+          previewBox.classList.remove('hidden');
+          dropArea.classList.add('hidden');
+          imageCount.textContent = files.length === 1
+            ? '1 photo selected'
+            : `${files.length} photos selected`;
+          imageCount.classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    addMoreImagesBtn.addEventListener('click', function() {
+      imageInput.click();
+    });
+
+    removeImageBtn.addEventListener('click', function() {
+      imageInput.value = '';
+      selectedFiles = [];
+      imagePreview.removeAttribute('src');
+      previewBox.classList.add('hidden');
+      imageCount.classList.add('hidden');
+      dropArea.classList.remove('hidden');
+    });
+
+    downloadImageBtn.addEventListener('click', function() {
+      const file = imageInput.files[0];
+
+      if (!file) {
+        alert('Please select an image first.');
+        return;
+      }
+
+      const downloadUrl = URL.createObjectURL(file);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = file.name;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      URL.revokeObjectURL(downloadUrl);
+    });
+    
+    const tabPreviewBtn = document.getElementById('tab-preview-btn');
+    const tabCodeBtn = document.getElementById('tab-code-btn');
+    const tabPreview = document.getElementById('tab-preview');
+    const tabCode = document.getElementById('tab-code');
+    const codeOutput = document.getElementById('code-output');
+    const previewIframe = document.getElementById('preview-iframe');
+    const copyBtn = document.getElementById('copy-btn');
+
+
+    // Tab Switching
+    tabPreviewBtn.addEventListener('click', () => {
+      tabPreview.classList.remove('hidden');
+      tabCode.classList.add('hidden');
+      tabPreviewBtn.className = "px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-white border border-slate-700 transition-all flex items-center gap-2";
+      tabCodeBtn.className = "px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2";
+    });
+
+    tabCodeBtn.addEventListener('click', () => {
+      tabCode.classList.remove('hidden');
+      tabPreview.classList.add('hidden');
+      tabCodeBtn.className = "px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-white border border-slate-700 transition-all flex items-center gap-2";
+      tabPreviewBtn.className = "px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2";
+    });
+
+    // Copy Code
+    copyBtn.addEventListener('click', () => {
+      if (codeOutput.value) {
+        navigator.clipboard.writeText(codeOutput.value);
+        copyBtn.querySelector('span').innerText = 'Copied!';
+        setTimeout(() => {
+          copyBtn.querySelector('span').innerText = 'Copy Code';
+        }, 2000);
+      }
+    });
+
+    // Handle Form Submission
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const activeMode = modeInput.value;
+      if (activeMode === 'photo' && !imageInput.files.length) {
+        alert('Please upload at least one image.');
+        return;
+      }
+      if (activeMode === 'text' && !document.getElementById('prompt').value.trim()) {
+        alert('Please write a description for the design you want.');
+        return;
+      }
+
+      const formData = new FormData(form);
+      loadingSpinner.classList.remove('hidden');
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch('/generate', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.code) {
+          codeOutput.value = data.code;
+          previewIframe.srcdoc = data.code;
+        } else {
+          alert('Error: ' + (data.error || 'Failed to generate code'));
+        }
+      } catch (err) {
+        alert('An error occurred while connecting to the server.');
+      } finally {
+        loadingSpinner.classList.add('hidden');
+        submitBtn.disabled = false;
+      }
+    });
+
+    setMode('photo');
+  </script>
+  <script src="{{ url_for('static', filename='pwa.js') }}"></script>
+
+</body>
+</html>
